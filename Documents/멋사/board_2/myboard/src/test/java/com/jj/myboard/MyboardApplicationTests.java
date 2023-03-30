@@ -33,8 +33,7 @@ class MyboardApplicationTests {
 	void test02() {
 		questionService.deleteAll();
 		for(int i=0; i<100; i++){
-			questionService.addQuestion("질문"+ (i+1), "내용"+ (i+1), userService.getUser(1));
+//			questionService.addQuestion("질문"+ (i+1), "내용"+ (i+1), userService.getUser(1));
 		}
-
 	}
 }

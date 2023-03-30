@@ -17,15 +17,13 @@ import java.util.Optional;
 public class QuestionService {
     private final QuestionRepository questionRepository;
 
-    public Question addQuestion(String subject, String content, SiteUser user) {
+    public Question addQuestion(String subject, String content) {
         Question question = Question
                 .builder()
                 .subject(subject)
                 .content(content)
-                .author(user)
                 .build();
 
-        user.addQuestion(question);
         return questionRepository.save(question);
     }
 
