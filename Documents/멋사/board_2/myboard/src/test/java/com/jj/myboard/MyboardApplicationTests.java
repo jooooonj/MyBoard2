@@ -32,9 +32,9 @@ class MyboardApplicationTests {
 	@Rollback(value = false)
 	void test02() {
 		questionService.deleteAll();
-		questionService.addQuestion("질문1", "내용1", userService.getUser(1));
-		questionService.addQuestion("질문2", "내용2", userService.getUser(2));
-		questionService.addQuestion("질문3", "내용3", userService.getUser(3));
-	}
+		for(int i=0; i<100; i++){
+			questionService.addQuestion("질문"+ (i+1), "내용"+ (i+1), userService.getUser(1));
+		}
 
+	}
 }

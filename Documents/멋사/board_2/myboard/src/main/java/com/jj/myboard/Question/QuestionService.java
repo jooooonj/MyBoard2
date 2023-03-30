@@ -3,6 +3,10 @@ package com.jj.myboard.Question;
 import com.jj.myboard.DataNotFoundException;
 import com.jj.myboard.SiteUser.SiteUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,8 +33,12 @@ public class QuestionService {
         questionRepository.deleteAll();
     }
 
-    public List<Question> getQuestionList() {
-        return questionRepository.findAll();
+    public Page<Question> getQuestionList(int page) {
+        int pageLimit = 10;
+        Pageable pageable = PageRequest.of(page, pageLimit, Sort.Direction.DESC, "id");
+
+        Page<Question> questionList = questionRepository.findAll(pageable);
+        return questionList;
     }
 
     public Question getQuestion(long id) {
