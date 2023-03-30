@@ -43,6 +43,7 @@ public class QuestionController {
         return "question/detail";
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/create")
     public String createForm(QuestionForm questionForm){
         return "question/form";
@@ -50,13 +51,13 @@ public class QuestionController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
-    public String createForm(@Valid QuestionForm questionForm, BindingResult bindingResult){
+    public String createForm(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal){
         if (bindingResult.hasErrors()) {
             return "redirect:/question/create";
         }
 
-
-        questionService.addQuestion(questionForm.getSubject(), questionForm.getContent());
+        SiteUser user = userService.getUser(principal.getName());
+        questionService.addQuestion(questionForm.getSubject(), questionForm.getContent(), user);
 
         return "redirect:/question/list";
     }

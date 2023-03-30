@@ -8,8 +8,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -17,11 +15,12 @@ import java.util.Optional;
 public class QuestionService {
     private final QuestionRepository questionRepository;
 
-    public Question addQuestion(String subject, String content) {
+    public Question addQuestion(String subject, String content, SiteUser user) {
         Question question = Question
                 .builder()
                 .subject(subject)
                 .content(content)
+                .author(user)
                 .build();
 
         return questionRepository.save(question);
