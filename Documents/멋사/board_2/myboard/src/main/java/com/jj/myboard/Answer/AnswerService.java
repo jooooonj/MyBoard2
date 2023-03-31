@@ -39,4 +39,12 @@ public class AnswerService {
         return _answer.get();
     }
 
+    public void modify(Answer answer, String content) {
+        answer.modify(content);
+        answerRepository.save(answer);
+    }
+
+    public void delete(Answer answer) {
+        answerRepository.delete(answer);
+    }
 }

@@ -30,4 +30,8 @@ public class Answer extends BaseEntity {
     @ManyToMany
     @Builder.Default
     private Set<SiteUser> voter = new LinkedHashSet<>();
+
+    public void modify(String content) {
+        this.content = content;
+    }
 }
