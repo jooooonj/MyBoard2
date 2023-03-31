@@ -34,4 +34,8 @@ public class Answer extends BaseEntity {
     public void modify(String content) {
         this.content = content;
     }
+
+    public void addVoter(SiteUser user) {
+        voter.add(user);
+    }
 }

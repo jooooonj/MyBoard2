@@ -1,5 +1,6 @@
 package com.jj.myboard;
 
+import com.jj.myboard.Question.Question;
 import com.jj.myboard.Question.QuestionRepository;
 import com.jj.myboard.Question.QuestionService;
 import com.jj.myboard.SiteUser.SiteUser;
@@ -35,5 +36,15 @@ class MyboardApplicationTests {
 		for(int i=0; i<100; i++){
 //			questionService.addQuestion("질문"+ (i+1), "내용"+ (i+1), userService.getUser(1));
 		}
+	}
+
+	@Test
+	@DisplayName("페이지")
+	@Transactional
+	@Rollback(value = false)
+	void test03(){
+		SiteUser user = userService.getUser(1);
+		Question question = questionService.addQuestion("테스트1", "테스트", user);
+		questionService.delete(question);
 	}
 }

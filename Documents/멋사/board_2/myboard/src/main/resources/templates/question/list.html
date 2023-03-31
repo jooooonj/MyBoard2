@@ -14,7 +14,7 @@
         <tr th:each="question, loop : ${questionList}">
             <td th:text="${questionList.number * 10 + loop.count}"></td>
             <td>
-                <a th:href="@{|/question/detail/${question.id}|}" th:text="${question.subject}"></a>
+                <a th:href="@{|/question/detail/${question.id}?page=${questionList.number}|}" th:text="${question.subject}"></a>
                 <span class="text-danger small ms-2"
                       th:if="${#lists.size(question.answerList) > 0}"
                       th:text="${#lists.size(question.answerList)}">

@@ -5,16 +5,15 @@ import com.jj.myboard.Question.QuestionForm;
 import com.jj.myboard.Question.QuestionService;
 import com.jj.myboard.SiteUser.SiteUser;
 import com.jj.myboard.SiteUser.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
@@ -30,27 +29,32 @@ public class AnswerController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/add/{id}")
     public String addAnswer(@Valid AnswerForm answerForm, BindingResult bindingResult,
-                            @PathVariable(value = "id") long id, Principal principal) {
+                            @PathVariable(value = "id") long id, Principal principal, HttpServletRequest request) {
+
+        String referrer = request.getHeader("referer"); //이전 코드
 
         if (bindingResult.hasErrors())
-            return String.format("redirect:/question/detail/%s", id);
+            return String.format("redirect:%s", referrer);
+
 
         Question question = questionService.getQuestion(id);
         SiteUser user = userService.getUser(principal.getName());
 
-        answerService.addAnswer(question, answerForm.getContent(), user);
-        return String.format("redirect:/question/detail/%s", id);
+        Answer answer = answerService.addAnswer(question, answerForm.getContent(), user);
+        return String.format("redirect:%s#answer_%s", referrer, answer.getId());
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/modify/{id}")
-    public String modify(@PathVariable(value = "id") long id, Principal principal, AnswerForm answerForm) {
+    public String modify(@PathVariable(value = "id") long id, Principal principal, AnswerForm answerForm, @RequestParam int page
+    , Model model) {
         Answer answer = answerService.getAnswer(id);
 
         if (!answer.getAuthor().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
+        model.addAttribute("page", page);
         answerForm.setContent(answer.getContent());
         return "answer/form";
     }
@@ -58,7 +62,7 @@ public class AnswerController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/modify/{id}")
     public String modify(@Valid AnswerForm answerForm, BindingResult bindingResult,
-                         @PathVariable(value = "id") long id, Principal principal) {
+                         @PathVariable(value = "id") long id, Principal principal, @RequestParam int page) {
         if (bindingResult.hasErrors()) {
             return "answer/form";
         }
@@ -70,18 +74,30 @@ public class AnswerController {
         }
 
         answerService.modify(answer, answerForm.getContent());
-        return "redirect:/question/detail/" + answer.getQuestion().getId();
+        return String.format("redirect:/question/detail/%s?page=%s#answer_%s", answer.getQuestion().getId(), page, answer.getId());
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable(value = "id") long id, Principal principal) {
+    public String delete(@PathVariable(value = "id") long id, Principal principal, HttpServletRequest request) {
+        String referrer = request.getHeader("referer"); //이전 코드
         Answer answer = answerService.getAnswer(id);
 
         if (!answer.getAuthor().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         answerService.delete(answer);
-        return "redirect:/question/detail/" + answer.getQuestion().getId();
+        return String.format("redirect:%s", referrer);
+    }
+
+    @GetMapping("/vote/{id}")
+    public String vote(@PathVariable(value = "id") long id, Principal principal, HttpServletRequest request) {
+        String referrer = request.getHeader("referer"); //이전 코드
+
+        Answer answer = answerService.getAnswer(id);
+        SiteUser user = userService.getUser(principal.getName());
+
+        answerService.addVoter(answer, user);
+        return String.format("redirect:%s#answer_%s", referrer, answer.getId());
     }
 }

@@ -55,4 +55,9 @@ public class QuestionService {
     public void delete(Question question) {
         questionRepository.delete(question);
     }
+
+    public void addVoter(Question question, SiteUser user) {
+        question.addVoter(user);
+        questionRepository.save(question);
+    }
 }

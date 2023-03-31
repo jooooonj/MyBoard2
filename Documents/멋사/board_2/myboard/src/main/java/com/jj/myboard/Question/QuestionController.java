@@ -1,12 +1,15 @@
 package com.jj.myboard.Question;
 
+import com.jj.myboard.Answer.Answer;
 import com.jj.myboard.Answer.AnswerForm;
 import com.jj.myboard.SiteUser.SiteUser;
 import com.jj.myboard.SiteUser.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -39,9 +42,11 @@ public class QuestionController {
     }
 
     @GetMapping("detail/{id}")
-    public String detail(@PathVariable(value = "id") long id, Model model, AnswerForm answerForm) {
+    public String detail(@PathVariable(value = "id") long id, Model model, AnswerForm answerForm, @RequestParam int page) {
+
         Question question = questionService.getQuestion(id);
         model.addAttribute("question", question);
+        model.addAttribute("page", page);
 
         return "question/detail";
     }
@@ -67,12 +72,15 @@ public class QuestionController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/modify/{id}")
-    public String modify(@PathVariable(value = "id") long id, Principal principal, QuestionForm questionForm) {
+    public String modify(@PathVariable(value = "id") long id, Principal principal, QuestionForm questionForm,
+                         Model model, @RequestParam int page) {
         Question question = questionService.getQuestion(id);
 
         if (!question.getAuthor().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
+
+        model.addAttribute("page", page);
 
         questionForm.setSubject(question.getSubject());
         questionForm.setContent(question.getContent());
@@ -82,7 +90,7 @@ public class QuestionController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/modify/{id}")
     public String modify(@Valid QuestionForm questionForm, BindingResult bindingResult,
-                         @PathVariable(value = "id") long id, Principal principal) {
+                         @PathVariable(value = "id") long id, Principal principal, @RequestParam int page) {
         if (bindingResult.hasErrors()) {
             return "question/form";
         }
@@ -94,19 +102,34 @@ public class QuestionController {
         }
 
         questionService.modify(question, questionForm.getSubject(), questionForm.getContent());
-        return "redirect:/question/detail/"+ id;
+        return String.format("redirect:/question/detail/%s?page=%s", id, page);
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable(value = "id") long id, Principal principal) {
+    public String delete(@PathVariable(value = "id") long id, Principal principal, HttpServletRequest request) {
+        String referrer = request.getHeader("referer"); //이전 코드
+        String[] split = referrer.substring(referrer.indexOf('?')).split("\\=");
+        String page = split[1];
+
         Question question = questionService.getQuestion(id);
 
         if (!question.getAuthor().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         questionService.delete(question);
-        return "redirect:/";
+        return String.format("redirect:/question/list?page=%s", page);
+    }
+
+    @GetMapping("/vote/{id}")
+    public String vote(@PathVariable(value = "id") long id, Principal principal, HttpServletRequest request) {
+        String referer = request.getHeader("referer");
+        Question question = questionService.getQuestion(id);
+        SiteUser user = userService.getUser(principal.getName());
+
+        questionService.addVoter(question, user);
+        return String.format("redirect:%s", referer);
+
     }
 
 }
