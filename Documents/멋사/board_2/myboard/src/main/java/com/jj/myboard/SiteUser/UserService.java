@@ -39,11 +39,23 @@ public class UserService {
     public SiteUser getUser(String username){
         Optional<SiteUser> _user = userRepository.findByUsername(username);
 
-        if (_user.isEmpty()) {
-            throw new DataNotFoundException("user is not found");
+        if (_user.isPresent()) {
+            return _user.get();
         }
 
-        return _user.get();
+        throw new DataNotFoundException("존재하지 않습니다.");
     }
+
+    public SiteUser register(RegisterForm registerForm) {
+        SiteUser user = SiteUser.builder()
+                .username(registerForm.getUsername())
+                .password(passwordEncoder.encode(registerForm.getPassword()))
+                .name(registerForm.getName())
+                .email(registerForm.getEmail())
+                .build();
+
+        return userRepository.save(user);
+    }
+
 
 }
