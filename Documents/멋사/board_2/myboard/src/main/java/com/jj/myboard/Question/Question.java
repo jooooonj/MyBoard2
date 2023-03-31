@@ -33,4 +33,12 @@ public class Question extends BaseEntity {
     @ManyToMany
     @Builder.Default
     private Set<SiteUser> voter = new LinkedHashSet<>();
+
+    public void addAnswer(Answer answer) {
+        answerList.add(answer);
+    }
+
+    public void addVoter(SiteUser user){
+        voter.add(user);
+    }
 }

@@ -23,6 +23,7 @@ public class QuestionService {
                 .author(user)
                 .build();
 
+        user.addQuestion(question);
         return questionRepository.save(question);
     }
 

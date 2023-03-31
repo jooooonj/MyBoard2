@@ -1,5 +1,6 @@
 package com.jj.myboard.Question;
 
+import com.jj.myboard.Answer.AnswerForm;
 import com.jj.myboard.SiteUser.SiteUser;
 import com.jj.myboard.SiteUser.UserService;
 import jakarta.validation.Valid;
@@ -36,7 +37,7 @@ public class QuestionController {
     }
 
     @GetMapping("detail/{id}")
-    public String detail(@PathVariable(value = "id") long id, Model model) {
+    public String detail(@PathVariable(value = "id") long id, Model model, AnswerForm answerForm) {
         Question question = questionService.getQuestion(id);
         model.addAttribute("question", question);
 
@@ -51,7 +52,7 @@ public class QuestionController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
-    public String createForm(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal){
+    public String createQuestion(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal){
         if (bindingResult.hasErrors()) {
             return "redirect:/question/create";
         }
