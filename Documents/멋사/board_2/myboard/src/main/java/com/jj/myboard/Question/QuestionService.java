@@ -46,4 +46,13 @@ public class QuestionService {
         }
         return _question.get();
     }
+
+    public void modify(Question question, String subject, String content) {
+        question.modify(subject, content);
+        questionRepository.save(question);
+    }
+
+    public void delete(Question question) {
+        questionRepository.delete(question);
+    }
 }

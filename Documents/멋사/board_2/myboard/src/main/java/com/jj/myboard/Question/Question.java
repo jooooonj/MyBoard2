@@ -41,4 +41,9 @@ public class Question extends BaseEntity {
     public void addVoter(SiteUser user){
         voter.add(user);
     }
+
+    public void modify(String subject, String content) {
+        this.subject = subject;
+        this.content = content;
+    }
 }
