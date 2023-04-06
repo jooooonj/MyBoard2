@@ -1,6 +1,19 @@
 <html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <div layout:fragment="content" class="container my-3 margin-left: auto; margin-right: auto">
+    <div class="row my-3">
+        <div class="col-6">
+            <a th:href="@{/question/create}" class="btn btn-primary">질문 등록하기</a>
+        </div>
+        <div class="col-6">
+            <form>
+                <div class="input-group">
+                    <input type="text" class="form-control" name="kw" placeholder="검색어" th:value="${param.kw}">
+                    <button class="btn btn-outline-secondary">찾기</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <table class="table">
         <thead class="table-dark">
         <tr>
@@ -25,19 +38,19 @@
         </tr>
         </tbody>
     </table>
-    <div class="d-flex justify-content-center">
+    <div class="d-flex justify-content-center" th:with="queryStrBase = '?kw=' + ${param.kw != null ? param.kw : ''}">
         <ul class="pagination justify-content-center">
             <li class="page-item" th:classappend="${!questionList.hasPrevious()} ? 'disabled'">
-                <a class="page-link" th:href="@{|?page=${questionList.number - 1}|}" aria-label="Previous">
+                <a class="page-link" th:href="@{|${queryStrBase}&page=${questionList.number - 1}|}" aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
                 </a>
             </li>
             <li th:each="page : ${#numbers.sequence(startPage, endPage)}"
                 th:classappend="${page==questionList.number + 1} ? 'active'">
-                <a class="page-link" th:text="${page}" th:href="@{|?page=${page - 1}|}"></a>
+                <a class="page-link" th:text="${page}" th:href="@{|${queryStrBase}&page=${page - 1}|}"></a>
             </li>
             <li class="page-item" th:classappend="${!questionList.hasNext()} ? 'disabled'">
-                <a class="page-link" th:href="@{|?page=${questionList.number + 1}|}" aria-label="Next">
+                <a class="page-link" th:href="@{|${queryStrBase}&page=${questionList.number + 1}|}" aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>

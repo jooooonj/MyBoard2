@@ -28,9 +28,13 @@ public class QuestionController {
     private final QuestionService questionService;
     private final UserService userService;
 
+
     @GetMapping("list")
-    public String list(Model model, @RequestParam(defaultValue = "0") int page) {
-        Page<Question> questionList = questionService.getQuestionList(page);
+    public String list(Model model, @RequestParam(defaultValue = "0") int page,
+                       @RequestParam(value = "kw", defaultValue = "") String kw, HttpServletRequest request) {
+
+        Page<Question> questionList = questionService.getQuestionList(page, kw);
+
 
         int blockPage = 5;
         int startPage = page / blockPage * blockPage + 1;
@@ -38,6 +42,8 @@ public class QuestionController {
         model.addAttribute("questionList", questionList);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
+        model.addAttribute("kw", kw);
+
         return "question/list";
     }
 
